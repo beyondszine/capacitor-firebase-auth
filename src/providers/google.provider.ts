@@ -1,15 +1,20 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
-import {GoogleSignInResult, SignInOptions} from '../definitions';
+import {GoogleSignInOptions, GoogleSignInResult} from '../definitions';
 import OAuthCredential = firebase.auth.OAuthCredential;
 
-export const googleSignInWeb: (options: {providerId: string, data?: SignInOptions}) => Promise<GoogleSignInResult>
-    = async () => {
-        try {
+export const googleSignInWeb: (options: GoogleSignInOptions) => Promise<GoogleSignInResult>
+    = async (options) => {
+        if(options.providerId!='google.com'){
+            Promise.reject("Invalid provider Id for Google Login");
+        }
 
+        try {
             const provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().useDeviceLanguage();
 
+            // for adding scopes given by user as GoogleSignInOptions. 
+            options.scopes.forEach(scope => provider.addScope(scope) );
             const userCredential = await firebase.auth().signInWithPopup(provider);
 
             const {credential}: { credential: OAuthCredential } = userCredential;

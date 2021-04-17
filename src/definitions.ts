@@ -45,8 +45,32 @@ export class PhoneSignInResult {
 export type SignInResult = GoogleSignInResult | TwitterSignInResult | FacebookSignInResult | PhoneSignInResult;
 
 export interface PhoneSignInOptions {
+  providerId : 'phone',
   phone: string,
   verificationCode?: string
 }
 
-export type SignInOptions = PhoneSignInOptions;
+export interface GoogleSignInOptions {
+  providerId : 'google.com',
+  scopes: Array<string>;
+}
+
+
+// THIS IS DONE BECAUSE OF LACK OF KNOWLEDGE AS OF NOW
+export interface TwitterSignInOptions {
+  providerId : 'twitter.com',
+  [key: string] : any
+}
+
+export interface AppleSignInOptions {
+  providerId : 'apple.com',
+  [key: string] : any
+}
+
+export interface facebookSignInOptions {
+  providerId : 'facebook.com',
+  [key: string] : any
+}
+
+export type SignInOptions = PhoneSignInOptions | GoogleSignInOptions | TwitterSignInOptions | facebookSignInOptions | AppleSignInOptions;
+// export type SignInOptions = PhoneSignInOptions | GoogleSignInOptions ;
