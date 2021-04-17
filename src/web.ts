@@ -1,7 +1,7 @@
 import {registerWebPlugin, WebPlugin} from '@capacitor/core';
 import firebase from 'firebase/app';
 import 'firebase/auth';
-import {CapacitorFirebaseAuthPlugin, SignInResult} from './definitions';
+import {CapacitorFirebaseAuthPlugin, SignInOptions, SignInResult} from './definitions';
 import {facebookSignInWeb} from './providers/facebook.provider';
 import {googleSignInWeb} from './providers/google.provider';
 import {phoneSignInWeb} from './providers/phone.provider';
@@ -15,23 +15,36 @@ export class CapacitorFirebaseAuthWeb extends WebPlugin implements CapacitorFire
     });
   }
 
-  async signIn(options: {providerId: string;}): Promise<SignInResult> {
+  async signIn(data: SignInOptions): Promise<SignInResult> {
       const googleProvider = new firebase.auth.GoogleAuthProvider().providerId;
       const facebookProvider = new firebase.auth.FacebookAuthProvider().providerId;
       const twitterProvider = new firebase.auth.TwitterAuthProvider().providerId;
       const phoneProvider = new firebase.auth.PhoneAuthProvider().providerId;
-      switch (options.providerId) {
-          case googleProvider:
-              return googleSignInWeb(options);
-          case twitterProvider:
-              return twitterSignInWeb(options);
-          case facebookProvider:
-              return facebookSignInWeb(options);
-          case phoneProvider:
-              return phoneSignInWeb(options);
-      }
 
-	  return Promise.reject(`The '${options.providerId}' provider was not supported`);
+      // TODO: need better strategy for linter to figure it out via switch case itself & not by additional if.
+      switch (data.providerId) {
+        case googleProvider:{
+          if(data.providerId=='google.com')
+            return googleSignInWeb(data);
+        }
+        case twitterProvider:	{
+          if(data.providerId=='twitter.com')
+            return twitterSignInWeb(data);
+        }
+        case facebookProvider:	{
+          if(data.providerId=='facebook.com')
+            return facebookSignInWeb(data);
+        }
+        // case cfaSignInAppleProvider:	{
+        //   if(data.providerId == 'apple.com')
+        //     return cfaSignInApple(data);
+        // }
+        case phoneProvider: {
+          if(data.providerId == 'phone')
+            return phoneSignInWeb(data);
+        }
+      }
+	  return Promise.reject(`The '${data.providerId}' provider was not supported`);
   }
 
   async signOut(options: {}): Promise<void> {
