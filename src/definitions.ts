@@ -14,7 +14,7 @@ export interface CapacitorFirebaseAuthPlugin {
 
 export class GoogleSignInResult{
   providerId = firebase.auth.GoogleAuthProvider.PROVIDER_ID;
-  constructor(public idToken: string) {
+  constructor(public idToken: string, public accessToken : string) {
   }
 }
 

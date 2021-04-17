@@ -13,7 +13,7 @@ export const googleSignInWeb: (options: {providerId: string, data?: SignInOption
             const userCredential = await firebase.auth().signInWithPopup(provider);
 
             const {credential}: { credential: OAuthCredential } = userCredential;
-            return new GoogleSignInResult(credential.idToken);
+            return new GoogleSignInResult(credential.idToken, credential.accessToken);
 
         } catch (e) {
             return Promise.reject(e);
