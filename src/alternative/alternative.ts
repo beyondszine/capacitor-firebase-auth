@@ -26,12 +26,12 @@ const plugin: CapacitorFirebaseAuthPlugin = Plugins.CapacitorFirebaseAuth;
  * @param providerId The provider identification.
  * @param data The provider additional information (optional).
  */
-export const cfaSignIn = (providerId: string, data?: SignInOptions): Observable<{userCredential: firebase.auth.UserCredential, result: SignInResult}> => {
+export const cfaSignIn = (data?: SignInOptions): Observable<{userCredential: firebase.auth.UserCredential, result: SignInResult}> => {
 	const googleProvider = new firebase.auth.GoogleAuthProvider().providerId;
 	const facebookProvider = new firebase.auth.FacebookAuthProvider().providerId;
 	const twitterProvider = new firebase.auth.TwitterAuthProvider().providerId;
 	const phoneProvider = new firebase.auth.PhoneAuthProvider().providerId;
-	switch (providerId) {
+	switch (data.providerId) {
 		case googleProvider:{
 			if(data.providerId=='google.com')
 				return cfaSignInGoogle(data);
@@ -53,7 +53,7 @@ export const cfaSignIn = (providerId: string, data?: SignInOptions): Observable<
 				return cfaSignInPhone(data);
 		}
 		default:
-			return throwError(new Error(`The '${providerId}' provider was not supported`));
+			return throwError(new Error(`The '${data.providerId}' provider was not supported`));
 	}
 };
 

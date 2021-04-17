@@ -3,12 +3,17 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import {Observable, throwError} from 'rxjs';
 import {
+	AppleSignInOptions,
     AppleSignInResult,
     CapacitorFirebaseAuthPlugin,
+	facebookSignInOptions,
     FacebookSignInResult,
+	GoogleSignInOptions,
     GoogleSignInResult,
+	PhoneSignInOptions,
     PhoneSignInResult,
     SignInOptions,
+	TwitterSignInOptions,
     TwitterSignInResult
 } from './definitions';
 import {CapacitorFirebaseAuth} from './web';
@@ -24,39 +29,51 @@ if (Capacitor.platform === 'web') {
  * @param providerId The provider identification.
  * @param data The provider additional information (optional).
  */
-export const cfaSignIn = (providerId: string, data?: SignInOptions): Observable<firebase.User> => {
+export const cfaSignIn = (data?: SignInOptions): Observable<firebase.User> => {
 	const googleProvider = new firebase.auth.GoogleAuthProvider().providerId;
 	const facebookProvider = new firebase.auth.FacebookAuthProvider().providerId;
 	const twitterProvider = new firebase.auth.TwitterAuthProvider().providerId;
 	const phoneProvider = new firebase.auth.PhoneAuthProvider().providerId;
-	switch (providerId) {
-		case googleProvider:
-			return cfaSignInGoogle();
-		case twitterProvider:
-			return cfaSignInTwitter();
-		case facebookProvider:
-			return cfaSignInFacebook();
-        case cfaSignInAppleProvider:
-            return cfaSignInApple();
-		case phoneProvider:
-			return cfaSignInPhone(data.phone, data.verificationCode);
+	// TODO: need better strategy for linter to figure it out via switch case itself & not by additional if.
+	switch (data.providerId) {
+		case googleProvider:{
+			if(data.providerId=='google.com')
+				return cfaSignInGoogle(data);
+		}
+		case twitterProvider:	{
+			if(data.providerId=='twitter.com')
+				return cfaSignInTwitter(data);
+		}
+		case facebookProvider:	{
+			if(data.providerId=='facebook.com')
+				return cfaSignInFacebook(data);
+		}
+		case cfaSignInAppleProvider:	{
+			if(data.providerId == 'apple.com')
+				return cfaSignInApple(data);
+		}
+		case phoneProvider: {
+			if(data.providerId == 'phone')
+				return cfaSignInPhone(data);
+		}
 		default:
-			return throwError(new Error(`The '${providerId}' provider was not supported`));
+			return throwError(new Error(`The '${data.providerId}' provider was not supported`));
 	}
 };
 
 /**
  * Call the Google sign in method on native layer and sign in on web layer with retrieved credentials.
  */
-export const cfaSignInGoogle = (): Observable<firebase.User> => {
+export const cfaSignInGoogle = (_data : GoogleSignInOptions): Observable<firebase.User> => {
 	return new Observable(observer => {
 		// get the provider id
-		const providerId = firebase.auth.GoogleAuthProvider.PROVIDER_ID;
+		// const providerId = firebase.auth.GoogleAuthProvider.PROVIDER_ID;
 
 		// native sign in
-		plugin.signIn({providerId}).then((result: GoogleSignInResult) => {
+		plugin.signIn(_data)
+		.then((result: GoogleSignInResult) => {
 			// create the credentials
-			const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken);
+			const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken, result.accessToken);
 
 			// web sign in
 			firebase.app().auth().signInWithCredential(credential)
@@ -76,7 +93,7 @@ export const cfaSignInGoogle = (): Observable<firebase.User> => {
 /**
  * Call the Twitter sign in method on native and sign in on web layer with retrieved credentials.
  */
-export const cfaSignInTwitter = (): Observable<firebase.User> => {
+export const cfaSignInTwitter = (_data : TwitterSignInOptions): Observable<firebase.User> => {
 	return new Observable(observer => {
 		// get the provider id
 		const providerId = firebase.auth.TwitterAuthProvider.PROVIDER_ID;
@@ -101,7 +118,7 @@ export const cfaSignInTwitter = (): Observable<firebase.User> => {
 /**
  * Call the Facebook sign in method on native and sign in on web layer with retrieved credentials.
  */
-export const cfaSignInFacebook = (): Observable<firebase.User> => {
+export const cfaSignInFacebook = (_data: facebookSignInOptions): Observable<firebase.User> => {
 	return new Observable(observer => {
 		// get the provider id
 		const providerId = firebase.auth.FacebookAuthProvider.PROVIDER_ID;
@@ -128,7 +145,7 @@ export const cfaSignInAppleProvider = 'apple.com';
 /**
  * Call the Apple sign in method on native and sign in on web layer with retrieved credentials.
  */
-export const cfaSignInApple = (): Observable<firebase.User> => {
+export const cfaSignInApple = (_data: AppleSignInOptions): Observable<firebase.User> => {
     return new Observable(observer => {
         // native sign in
         plugin.signIn({providerId: cfaSignInAppleProvider}).then((result: AppleSignInResult) => {
@@ -156,12 +173,12 @@ export const cfaSignInApple = (): Observable<firebase.User> => {
  * @param phone The user phone number.
  * @param verificationCode The verification code sent by SMS (optional).
  */
-export const cfaSignInPhone = (phone: string, verificationCode?: string) : Observable<firebase.User>  => {
+export const cfaSignInPhone = (_data : PhoneSignInOptions) : Observable<firebase.User>  => {
 	return new Observable(observer => {
 		// get the provider id
-		const providerId = firebase.auth.PhoneAuthProvider.PROVIDER_ID;
+		// const providerId = firebase.auth.PhoneAuthProvider.PROVIDER_ID;
 
-		plugin.signIn({providerId, data:{phone, verificationCode}}).then((result: PhoneSignInResult) => {
+		plugin.signIn(_data).then((result: PhoneSignInResult) => {
 			// if there is no verification code
 			if (!result.verificationCode) {
 				return observer.complete();
