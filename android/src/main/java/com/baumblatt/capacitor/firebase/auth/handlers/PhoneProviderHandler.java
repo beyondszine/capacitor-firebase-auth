@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 public class PhoneProviderHandler implements ProviderHandler {
     private static final String PHONE_TAG = "PhoneProviderHandler";
+    public JSObject credentialsOpts = new JSObject();
+
 
     private String mVerificationId;
     private String mVerificationCode;
@@ -108,7 +110,7 @@ public class PhoneProviderHandler implements ProviderHandler {
         } else {
             AuthCredential credential = PhoneAuthProvider.getCredential(this.mVerificationId, code);
             this.mVerificationCode = code;
-            plugin.handleAuthCredentials(credential);
+            plugin.handleAuthCredentials(credential, this.credentialsOpts);
         }
     }
 

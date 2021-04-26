@@ -45,6 +45,8 @@ public class CapacitorFirebaseAuth extends Plugin {
 
     private boolean nativeAuth = false;
 
+    public JSObject credentialsOpts = new JSObject();
+
     private CapConfig config;
 
     public CapConfig getConfig() {
@@ -180,8 +182,10 @@ public class CapacitorFirebaseAuth extends Plugin {
         }
     }
 
-    public void handleAuthCredentials(AuthCredential credential) {
+    public void handleAuthCredentials(AuthCredential credential, JSObject credentialsOpts) {
         final PluginCall savedCall = getSavedCall();
+        this.credentialsOpts = credentialsOpts;
+
         if (savedCall == null) {
             Log.d(PLUGIN_TAG, "No saved call on activity result.");
             return;
@@ -253,6 +257,13 @@ public class CapacitorFirebaseAuth extends Plugin {
         Log.d(PLUGIN_TAG, "Building authentication result");
 
         JSObject jsResult = new JSObject();
+
+        // add all the other additional params you want to pass through, ex: to web layer 
+        for (Iterator<String> it = this.credentialsOpts.keys(); it.hasNext(); ) {
+          String optKey = it.next();
+          jsResult.put(optKey,this.credentialsOpts.getString(optKey));
+        }
+
         jsResult.put("callbackId", call.getCallbackId());
         jsResult.put("providerId", call.getString("providerId"));
 

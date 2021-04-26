@@ -23,6 +23,8 @@ import java.lang.reflect.Method;
 public class TwitterProviderHandler implements ProviderHandler, OnSuccessListener<AuthResult>, OnFailureListener {
     private static final String TWITTER_TAG = "TwitterProviderHandler";
     public static final int RC_TWITTER_SIGN_IN = 9001;
+    public JSObject credentialsOpts = new JSObject();
+
 
     private CapacitorFirebaseAuth plugin;
     private FirebaseAuth firebaseAuth;
@@ -56,7 +58,7 @@ public class TwitterProviderHandler implements ProviderHandler, OnSuccessListene
 
     @Override
     public void onSuccess(AuthResult authResult) {
-        this.plugin.handleAuthCredentials(authResult.getCredential());
+        this.plugin.handleAuthCredentials(authResult.getCredential(), this.credentialsOpts);
     }
 
     @Override

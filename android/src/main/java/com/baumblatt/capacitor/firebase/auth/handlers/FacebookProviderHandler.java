@@ -20,6 +20,8 @@ public class FacebookProviderHandler implements ProviderHandler {
     private static final String FACEBOOK_TAG = "FacebookProviderHandler";
     public static final int RC_FACEBOOK_LOGIN = 0xface;
 
+    public JSObject credentialsOpts = new JSObject();
+
     private CapacitorFirebaseAuth plugin;
     private CallbackManager mCallbackManager;
     private LoginButton loginButton;
@@ -65,7 +67,7 @@ public class FacebookProviderHandler implements ProviderHandler {
 
     private void handleFacebookAccessToken(AccessToken token) {
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        this.plugin.handleAuthCredentials(credential);
+        this.plugin.handleAuthCredentials(credential, this.credentialsOpts);
     }
 
     @Override

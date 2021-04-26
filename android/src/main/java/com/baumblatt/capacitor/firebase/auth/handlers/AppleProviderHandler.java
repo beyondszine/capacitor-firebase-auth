@@ -23,6 +23,8 @@ public class AppleProviderHandler implements ProviderHandler, OnSuccessListener<
     private static final String APPLE_TAG = "AppleProviderHandler";
     public static final int RC_APPLE_SIGN_IN = 8001;
 
+    public JSObject credentialsOpts = new JSObject();
+
     private CapacitorFirebaseAuth plugin;
     private FirebaseAuth firebaseAuth;
     private OAuthProvider.Builder provider;
@@ -55,7 +57,7 @@ public class AppleProviderHandler implements ProviderHandler, OnSuccessListener<
 
     @Override
     public void onSuccess(AuthResult authResult) {
-        this.plugin.handleAuthCredentials(authResult.getCredential());
+        this.plugin.handleAuthCredentials(authResult.getCredential(), this.credentialsOpts);
     }
 
     @Override

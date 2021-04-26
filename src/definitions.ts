@@ -74,3 +74,10 @@ export interface facebookSignInOptions {
 
 export type SignInOptions = PhoneSignInOptions | GoogleSignInOptions | TwitterSignInOptions | facebookSignInOptions | AppleSignInOptions;
 // export type SignInOptions = PhoneSignInOptions | GoogleSignInOptions ;
+
+export interface SignInResponseBody {
+  userCredentials : firebase.auth.UserCredential,
+  credentialsOpts : {
+      [key: string] : any
+  } 
+}

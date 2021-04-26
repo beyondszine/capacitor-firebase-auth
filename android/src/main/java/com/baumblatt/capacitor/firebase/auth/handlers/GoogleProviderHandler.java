@@ -32,6 +32,9 @@ public class GoogleProviderHandler implements ProviderHandler {
     public static final int RC_GOOGLE_SIGN_IN = 9001;
     private static final String GOOGLE_TAG = "GoogleProviderHandler";
 
+    public JSObject credentialsOpts = new JSObject();
+
+
     private CapacitorFirebaseAuth plugin;
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -50,7 +53,8 @@ public class GoogleProviderHandler implements ProviderHandler {
         }
 
         GoogleSignInOptions.Builder gsBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(this.plugin.getContext().getString(R.string.default_web_client_id))
+                .requestServerAuthCode( this.plugin.getContext().getString(R.string.default_web_client_id) )
+                .requestIdToken( this.plugin.getContext().getString(R.string.default_web_client_id ) )
                 .requestEmail();
 
         for (String permission : permissions) {
@@ -91,11 +95,14 @@ public class GoogleProviderHandler implements ProviderHandler {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             // Google Sign In was successful, authenticate with Firebase
             GoogleSignInAccount account = task.getResult(ApiException.class);
+            String authCode = account.getServerAuthCode();
+            this.credentialsOpts.put("authCode", authCode);
+
 
             if (account != null) {
                 Log.d(GOOGLE_TAG, "Google Sign In succeed.");
                 AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-                this.plugin.handleAuthCredentials(credential);
+                this.plugin.handleAuthCredentials(credential, this.credentialsOpts);
                 return;
             }
         } catch (ApiException exception) {
